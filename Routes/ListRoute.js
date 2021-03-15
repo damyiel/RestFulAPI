@@ -3,10 +3,11 @@ const router = express.Router()
 const List = require('../models/List')
 
 //Create
-router.post('/', async (req,res) => {
+router.post('/save', async (req,res) => {
     const list = new List({
         title: req.body.title,
-        description: req.body.description
+        description: req.body.description,
+        
     })
     try {
         const savedList = await list.save()
@@ -18,7 +19,16 @@ router.post('/', async (req,res) => {
 })
 
 //Read
-router.get('/', async (req,res) => {
+router.get('/get', async (req,res) => {
+    try {
+        const list = await List.find();
+        res.json(list);
+    } catch (error) {
+        res.json({message: err})
+    }
+})
+
+router.get('/getFinished', async (req,res) => {
     try {
         const list = await List.find();
         res.json(list);
@@ -43,8 +53,7 @@ router.put('/:listID', async(req,res) => {
         const updateList = await List.updateOne(
             {_id: req.params.listID},
             {$set: {
-                title: req.body.title,
-                description: req.body.description
+                status: req.body.status
             }}
         )
         const list = await List.findById({_id: req.params.listID});
@@ -53,7 +62,20 @@ router.put('/:listID', async(req,res) => {
         res.json({message: err})
     }
 })
-
+router.put('false/:listID', async(req,res) => {
+    try {
+        const updateList = await List.updateOne(
+            {_id: req.params.listID},
+            {$set: {
+                status: false
+            }}
+        )
+        const list = await List.findById({_id: req.params.listID});
+        res.json(list);
+    } catch (error) {
+        res.json({message: err})
+    }
+})
 //Delete
 router.delete('/:listID', async(req,res) => {
     try {
